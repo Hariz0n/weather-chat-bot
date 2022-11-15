@@ -1,5 +1,8 @@
 from telebot import types
+from db import*
+from main import*
 
+botDB = BotDB('db.db')
 
 class MenuHandler:
     markup = None
@@ -9,9 +12,10 @@ class MenuHandler:
         self.previous_menu = ''
         self.menu_markup = {
             'main': {
-                'buttons': ['☀️ Показать погоду', '🌟 Оцените нас'],
+                'buttons': ['☀️ Показать погоду', '🌟 Оцените нас', 'Изменить город'],
                 'img': None,
-                'content': None
+                'content': None,
+                'on_active': None
             },
             'rate_us': {
                 'buttons': ['Назад'],
@@ -19,17 +23,21 @@ class MenuHandler:
                 'content': None
             },
             'weather_info': {
-                'buttons': ['В главное меню', 'Прогноз на день'],
+                'buttons': ['На главную', 'Прогноз на день', 'Изменить город'],
                 'img': None,
                 'content': None
             },
             'enter_city_name': {
                 'buttons': ['Назад']
+
             },
             'daily': {
                 'buttons': ['Назад', 'На главную'],
                 'img': None,
                 'content': None
+            },
+            'error': {
+                'buttons': ['На главную']
             }
         }
         self.change_menu('main')
@@ -48,3 +56,23 @@ class MenuHandler:
 
 menu_handler = MenuHandler()
 
+
+
+
+def weather_screen_activate(message, bot):
+    user_id = int(message.from_user.id)
+    if botDB.is_user_exists(user_id):
+        weather_screen_show_weather(botDB.get_location(user_id), message.chat.id, bot)
+    else:
+        botDB.add_user(user_id)
+        menu_handler.change_menu('enter_city_name')
+        bot.send_message(message.from_user.id, 'Введите название города')
+    pass
+
+def weather_screen_show_weather(city_name, chat_id, bot):
+    image_link = get_weather_picture(city_name)
+    city_name = city_name
+    bot.send_photo(chat_id, photo=open(fr'{image_link}', 'rb'),
+                   caption=get_current_weather_info(city_name), reply_markup=menu_handler.markup)
+    bot.send_message(chat_id, image_link)
+    menu_handler.change_menu('weather_info')
