@@ -1,6 +1,5 @@
 from telebot import types
-from db import*
-from main import*
+from db import BotDB
 from shedule import ScheduleBot
 from TOKEN import TOKEN
 import telebot
@@ -8,6 +7,7 @@ import telebot
 bot = telebot.TeleBot(TOKEN)
 botDB = BotDB('db.db')
 scheduleBot = ScheduleBot()
+
 
 class MenuHandler:
     markup = None
@@ -61,39 +61,7 @@ class MenuHandler:
     def goto_previous_menu(self):
         if self.previous_menu != '':
             self.change_menu(self.previous_menu)
-
-menu_handler = MenuHandler()
-
-
-
-def weather_screen_activate(user_id, bot):
-    if botDB.is_user_exists(user_id):
-        weather_screen_show_weather(botDB.get_location(user_id), user_id, bot)
-    else:
-        botDB.add_user(user_id)
-        menu_handler.change_menu('enter_city_name')
-        bot.send_message(user_id, 'Введите название города')
     pass
 
-def weather_screen_show_weather(city_name, user_id, bot):
-    image_link = get_weather_picture(city_name)
-    city_name = city_name
-    bot.send_photo(user_id, photo=open(fr'{image_link}', 'rb'),
-                   caption=get_current_weather_info(city_name), reply_markup=menu_handler.markup)
-    bot.send_message(user_id, image_link)
-    menu_handler.change_menu('weather_info')
 
-
-class Notifications:
-    @staticmethod
-    def set_user_notification(user_id, bot, user_time):
-        scheduleBot.add_task(user_time, weather_screen_activate, user_id, bot)
-    @staticmethod
-    def set_notifications_from_DB(bot):
-        for user in botDB.get_users():
-            user_id = user[1]
-            user_time = botDB.get_notification_time(user_id)
-            Notifications.set_user_notification(user_id, bot, user_time)
-            print(f'{user_id} - {user_time}')
-
-Notifications.set_notifications_from_DB(bot)
+menu_handler = MenuHandler()

@@ -1,10 +1,12 @@
 import telebot
 from TOKEN import TOKEN
-from main import *
-from telebot import types
+from weather_controller import*
 from menuhandler import*
-import datetime
+from db import BotDB
+from notifications import Notifications
+
 bot = telebot.TeleBot(TOKEN)
+botDB = BotDB('db.db')
 
 
 @bot.message_handler(commands=['start'])
@@ -17,7 +19,7 @@ def on_message(message):
     if message.text == 'Назад':
         menu_handler.goto_previous_menu()
     elif message.text == '☀️ Показать погоду':
-        weather_screen_activate(message.from_user.id, bot)
+        WeatherControl.weather_screen_activate(message.from_user.id, bot)
     elif message.text == '🌟 Оцените нас':
         menu_handler.change_menu('rate_us')
     elif message.text == 'Прогноз на день':
@@ -34,7 +36,7 @@ def on_message(message):
         if menu_handler.current_menu == 'enter_city_name':
             user_id = int(message.from_user.id)
             botDB.update_location(user_id, message.text.lower())
-            weather_screen_show_weather(message.text.lower(), message.chat.id, bot)
+            WeatherControl.weather_screen_show_weather(message.text.lower(), message.chat.id, bot)
         elif menu_handler.current_menu == 'set_notification':
             time = message.text
             botDB.update_notification_time(int(message.from_user.id), time)
