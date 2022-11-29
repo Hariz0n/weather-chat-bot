@@ -1,3 +1,4 @@
+import json
 import re
 import sqlite3
 from shedule import ScheduleBot
@@ -53,28 +54,28 @@ class BotDB:
         return self.connect.commit()
 
     def get_location(self, user_id):
-        """Получение города и времени для погодного оповещения"""
+        """Получение города для погодного оповещения"""
         if not self.is_user_exists(user_id):
             raise UserDoesNotExistError("User does not exist")
         self.cursor.execute("SELECT city FROM locations WHERE userId = ?",
                             (user_id,))
         return self.cursor.fetchall()[0][0]
 
-    # def update_timeZone(self, user_id, timeZone):
-    #     """Обновить рейтинг пользователя"""
-    #     if not self.is_user_exists(user_id):
-    #         raise UserDoesNotExistError("User does not exist")
-    #     self.cursor.execute("UPDATE locations SET timeZone = ? WHERE userId = ?",
-    #                         (timeZone, user_id,))
-    #     return self.connect.commit()
+    def update_weekdays(self, user_id, weekdays):
+        """Обновить дни недели пользователя"""
+        if not self.is_user_exists(user_id):
+            raise UserDoesNotExistError("User does not exist")
+        self.cursor.execute("UPDATE locations SET weekdays = ? WHERE userId = ?",
+                            (json.dumps(weekdays), user_id,))
+        return self.connect.commit()
 
-    # def get_time_zone(self, user_id):
-    #     """Получение времени для погодного оповещения"""
-    #     if not self.is_user_exists(user_id):
-    #         raise UserDoesNotExistError("User does not exist")
-    #     self.cursor.execute("SELECT notificationTime FROM locations WHERE userId = ?",
-    #                         (user_id,))
-    #     return self.cursor.fetchall()[0][0]
+    def get_weekdays(self, user_id):
+        """Получение получение СПИСКА дней недели для погодного оповещения"""
+        if not self.is_user_exists(user_id):
+            raise UserDoesNotExistError("User does not exist")
+        self.cursor.execute("SELECT weekdays FROM locations WHERE userId = ?",
+                            (user_id,))
+        return json.loads(self.cursor.fetchall()[0][0])
 
     def get_notification_time(self, user_id):
         """Получение времени для погодного оповещения"""
