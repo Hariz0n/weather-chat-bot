@@ -4,7 +4,6 @@ import sqlite3
 from shedule import ScheduleBot
 
 
-
 class UserDoesNotExistError(Exception):
     pass
 
@@ -34,17 +33,6 @@ class BotDB:
         self.cursor.execute("UPDATE locations SET city = ? WHERE userId = ?", (city, user_id,))
         return self.connect.commit()
 
-    def update_notification_time(self, user_id, time):
-        """Смена времени оповещения о погоде в формате HH:MM"""
-        if not self.is_user_exists(user_id):
-            raise UserDoesNotExistError("User does not exist")
-        if bool(re.match(r"[0-2][\d]:[0-5][\d]", time)):
-            self.cursor.execute("UPDATE locations SET notificationTime = ? WHERE userId = ?",
-                                (time, user_id,))
-            return self.connect.commit()
-        else:
-            raise ValueError("Time format error")
-
     def update_rating(self, user_id, rating):
         """Обновить рейтинг пользователя"""
         if not self.is_user_exists(user_id):
@@ -61,29 +49,21 @@ class BotDB:
                             (user_id,))
         return self.cursor.fetchall()[0][0]
 
-    def update_weekdays(self, user_id, weekdays):
-        """Обновить дни недели пользователя"""
+    def update_schedule(self, user_id, schedule):
+        """Обновить расписание пользователя"""
         if not self.is_user_exists(user_id):
             raise UserDoesNotExistError("User does not exist")
-        self.cursor.execute("UPDATE locations SET weekdays = ? WHERE userId = ?",
-                            (json.dumps(weekdays), user_id,))
+        self.cursor.execute("UPDATE locations SET schedule = ? WHERE userId = ?",
+                            (json.dumps(schedule), user_id,))
         return self.connect.commit()
 
-    def get_weekdays(self, user_id):
-        """Получение получение СПИСКА дней недели для погодного оповещения"""
+    def get_schedule(self, user_id):
+        """Получение расписания для погодного оповещения"""
         if not self.is_user_exists(user_id):
             raise UserDoesNotExistError("User does not exist")
-        self.cursor.execute("SELECT weekdays FROM locations WHERE userId = ?",
+        self.cursor.execute("SELECT schedule FROM locations WHERE userId = ?",
                             (user_id,))
         return json.loads(self.cursor.fetchall()[0][0])
-
-    def get_notification_time(self, user_id):
-        """Получение времени для погодного оповещения"""
-        if not self.is_user_exists(user_id):
-            raise UserDoesNotExistError("User does not exist")
-        self.cursor.execute("SELECT notificationTime FROM locations WHERE userId = ?",
-                            (user_id,))
-        return self.cursor.fetchall()[0][0]
 
     def get_users(self):
         """Получение всех пользователей в БД"""
