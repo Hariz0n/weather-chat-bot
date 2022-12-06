@@ -12,13 +12,22 @@ class ScheduleBot:
         self.s = schedule.Scheduler()
         self.stop_run_continuously = ScheduleBot.run_continuously(self)
         self.weekdays = {
-            "Mon": lambda s, user_time, func, *args: s.every().monday.at(user_time).do(func, *args),
-            "Tue": lambda s, user_time, func, *args: s.every().tuesday.at(user_time).do(func, *args),
-            "Wed": lambda s, user_time, func, *args: s.every().wednesday.at(user_time).do(func, *args),
-            "Thu": lambda s, user_time, func, *args: s.every().thursday.at(user_time).do(func, *args),
-            "Fri": lambda s, user_time, func, *args: s.every().friday.at(user_time).do(func, *args),
-            "Sat": lambda s, user_time, func, *args: s.every().saturday.at(user_time).do(func, *args),
-            "Sun": lambda s, user_time, func, *args: s.every().sunday.at(user_time).do(func, *args),
+            "ПН": lambda s, user_time, user_id, func, *args: s.every().monday.at(user_time).do(func, *args).tag(
+                user_id),
+            "ВТ": lambda s, user_time, user_id, func, *args: s.every().tuesday.at(user_time).do(func, *args).tag(
+                user_id),
+            "СР": lambda s, user_time, user_id, func, *args: s.every().wednesday.at(user_time).do(func, *args).tag(
+                user_id),
+            "ЧТ": lambda s, user_time, user_id, func, *args: s.every().thursday.at(user_time).do(func, *args).tag(
+                user_id),
+            "ПТ": lambda s, user_time, user_id, func, *args: s.every().friday.at(user_time).do(func, *args).tag(
+                user_id),
+            "СБ": lambda s, user_time, user_id, func, *args: s.every().saturday.at(user_time).do(func, *args).tag(
+                user_id),
+            "ВС": lambda s, user_time, user_id, func, *args: s.every().sunday.at(user_time).do(func, *args).tag(
+                user_id),
+            "Ежедн": lambda s, user_time, user_id, func, *args: s.every().day.at(user_time).do(func, *args).tag(
+                user_id),
         }
 
     def run_continuously(self, interval=1):
@@ -38,15 +47,23 @@ class ScheduleBot:
     def add_task(self, user_time, func, *args):
         self.s.every().day.at(user_time).do(func, *args)
 
-    def add_week_tasks(self, weekdays, user_time, func, *args):
-        for weekday in weekdays:
-            self.weekdays[weekday](self.s, user_time, func, *args)
+    def add_week_tasks(self, user_schedule, user_id, func, *args):
+        for x in user_schedule:
+            for i in x.split(", "):
+                self.weekdays[i](self.s, user_schedule[x], user_id, func, *args)
+
+    def update_week_tasks(self, user_schedule, user_id, func, *args):
+        self.delete_user_tasks(user_id)
+        self.add_week_tasks(user_schedule, user_id, func, *args)
 
     def stop_schedule(self):
         self.stop_run_continuously.set()
 
     def delete_all_tasks(self):
         self.s.clear()
+
+    def delete_user_tasks(self, user_id):
+        self.s.clear(user_id)
 
     def print_schedule(self):
         print(self.s.get_jobs())
