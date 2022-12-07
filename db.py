@@ -52,7 +52,7 @@ class BotDB:
     def update_schedule(self, user_id, schedule):
         """Обновить расписание пользователя"""
         if not self.is_user_exists(user_id):
-            raise UserDoesNotExistError("User does not exist")
+            self.add_user(user_id)
         self.cursor.execute("UPDATE locations SET schedule = ? WHERE userId = ?",
                             (json.dumps(schedule), user_id,))
         return self.connect.commit()
@@ -60,7 +60,7 @@ class BotDB:
     def get_schedule(self, user_id):
         """Получение расписания для погодного оповещения"""
         if not self.is_user_exists(user_id):
-            raise UserDoesNotExistError("User does not exist")
+            return {}
         self.cursor.execute("SELECT schedule FROM locations WHERE userId = ?",
                             (user_id,))
         return json.loads(self.cursor.fetchall()[0][0])

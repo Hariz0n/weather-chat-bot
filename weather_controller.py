@@ -11,6 +11,7 @@ class WeatherControl:
     def get_weather_data(city_name):
         response = requests.get(
             f'https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
+        print(f'https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
         return response.json()
 
     @staticmethod
