@@ -1,8 +1,6 @@
-import json
-
 import schedule
 import threading
-# from pytz import timezone
+import datetime as dt
 import time
 
 
@@ -12,21 +10,29 @@ class ScheduleBot:
         self.s = schedule.Scheduler()
         self.stop_run_continuously = ScheduleBot.run_continuously(self)
         self.weekdays = {
-            "ПН": lambda s, user_time, user_id, func, *args: s.every().monday.at(user_time).do(func, *args).tag(
+            "ПН": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().monday.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
-            "ВТ": lambda s, user_time, user_id, func, *args: s.every().tuesday.at(user_time).do(func, *args).tag(
+            "ВТ": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().tuesday.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
-            "СР": lambda s, user_time, user_id, func, *args: s.every().wednesday.at(user_time).do(func, *args).tag(
+            "СР": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().wednesday.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
-            "ЧТ": lambda s, user_time, user_id, func, *args: s.every().thursday.at(user_time).do(func, *args).tag(
+            "ЧТ": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().thursday.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
-            "ПТ": lambda s, user_time, user_id, func, *args: s.every().friday.at(user_time).do(func, *args).tag(
+            "ПТ": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().friday.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
-            "СБ": lambda s, user_time, user_id, func, *args: s.every().saturday.at(user_time).do(func, *args).tag(
+            "СБ": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().saturday.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
-            "ВС": lambda s, user_time, user_id, func, *args: s.every().sunday.at(user_time).do(func, *args).tag(
+            "ВС": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().sunday.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
-            "Ежедн": lambda s, user_time, user_id, func, *args: s.every().day.at(user_time).do(func, *args).tag(
+            "Ежедн": lambda s, user_time, user_time_zone, user_id, func, *args: s.every().day.at(
+                self.localize_time(user_time, user_time_zone)).do(func, *args).tag(
                 user_id),
         }
 
@@ -44,17 +50,14 @@ class ScheduleBot:
         continuous_thread.start()
         return cease_continuous_run
 
-    def add_task(self, user_time, func, *args):
-        self.s.every().day.at(user_time).do(func, *args)
-
-    def add_week_tasks(self, user_schedule, user_id, func, *args):
+    def add_week_tasks(self, user_schedule, user_time_zone, user_id, func, *args):
         for x in user_schedule:
             for i in x.split(", "):
-                self.weekdays[i](self.s, user_schedule[x], user_id, func, *args)
+                self.weekdays[i](self.s, user_schedule[x], user_time_zone, user_id, func, *args)
 
-    def update_week_tasks(self, user_schedule, user_id, func, *args):
+    def update_week_tasks(self, user_schedule, user_time_zone, user_id, func, *args):
         self.delete_user_tasks(user_id)
-        self.add_week_tasks(user_schedule, user_id, func, *args)
+        self.add_week_tasks(user_schedule, user_time_zone, user_id, func, *args)
 
     def stop_schedule(self):
         self.stop_run_continuously.set()
@@ -67,3 +70,11 @@ class ScheduleBot:
 
     def print_schedule(self):
         print(self.s.get_jobs())
+
+    @staticmethod
+    def localize_time(user_time, current_time_zone):
+        loc_time = dt.datetime.strptime(user_time, "%H:%M")
+        time_zone = dt.timedelta(seconds=18000 - current_time_zone)
+        loc_time = loc_time + time_zone
+        loc_time = loc_time.strftime("%H:%M")
+        return loc_time
