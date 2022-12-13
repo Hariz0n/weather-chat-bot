@@ -134,3 +134,4 @@ dmypy.json
 # PyCharm IDE
 .idea
 
+db(test).db
