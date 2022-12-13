@@ -41,6 +41,21 @@ class BotDB:
                             (rating, user_id,))
         return self.connect.commit()
 
+    def get_time_zone(self, user_id):
+        """Получение часового пояса для погодного оповещения"""
+        if not self.is_user_exists(user_id):
+            raise UserDoesNotExistError("User does not exist")
+        self.cursor.execute("SELECT timeZone FROM locations WHERE userId = ?",
+                            (user_id,))
+        return self.cursor.fetchall()[0][0]
+
+    def update_time_zone(self, user_id, time_zone):
+        """Смена часового пояса города для оповещения о погоде"""
+        if not self.is_user_exists(user_id):
+            raise UserDoesNotExistError("User does not exist")
+        self.cursor.execute("UPDATE locations SET timeZone = ? WHERE userId = ?", (time_zone, user_id,))
+        return self.connect.commit()
+
     def get_location(self, user_id):
         """Получение города для погодного оповещения"""
         if not self.is_user_exists(user_id):
