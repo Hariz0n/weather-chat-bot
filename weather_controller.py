@@ -2,11 +2,84 @@ import requests
 from TOKEN import API_KEY
 from datetime import date, datetime
 from db import BotDB
-from menuhandler import*
+from menuhandler import *
 
 botDB = BotDB('db.db')
 
+
 class WeatherControl:
+    weather_codes = {
+
+        # Group 2xx: Thunderstorm
+        "200": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "201": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "202": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "210": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "211": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "212": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "221": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "230": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "231": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "232": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+
+        # Group 3xx: Drizzle
+        "300": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "301": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "302": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "310": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "311": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "312": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "313": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "314": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "321": lambda weather: fr"img\{weather}\Drizzle.jpg",
+
+        # Group 5xx: Rain
+        "500": lambda weather: fr"img\{weather}\Rain.jpg",
+        "501": lambda weather: fr"img\{weather}\Rain.jpg",
+        "502": lambda weather: fr"img\{weather}\Rain.jpg",
+        "503": lambda weather: fr"img\{weather}\Rain.jpg",
+        "504": lambda weather: fr"img\{weather}\Rain.jpg",
+        "511": lambda weather: fr"img\{weather}\Rain.jpg",
+        "520": lambda weather: fr"img\{weather}\Rain.jpg",
+        "521": lambda weather: fr"img\{weather}\Rain.jpg",
+        "522": lambda weather: fr"img\{weather}\Rain.jpg",
+        "531": lambda weather: fr"img\{weather}\Rain.jpg",
+
+        # Group 6xx: Snow
+        "600": lambda weather: fr"img\{weather}\Snow.jpg",
+        "601": lambda weather: fr"img\{weather}\Snow.jpg",
+        "602": lambda weather: fr"img\{weather}\Snow.jpg",
+        "611": lambda weather: fr"img\{weather}\Snow.jpg",
+        "612": lambda weather: fr"img\{weather}\Snow.jpg",
+        "613": lambda weather: fr"img\{weather}\Snow.jpg",
+        "615": lambda weather: fr"img\{weather}\Snow.jpg",
+        "616": lambda weather: fr"img\{weather}\Snow.jpg",
+        "620": lambda weather: fr"img\{weather}\Snow.jpg",
+        "621": lambda weather: fr"img\{weather}\Snow.jpg",
+        "622": lambda weather: fr"img\{weather}\Snow.jpg",
+
+        # Group 7xx: Atmosphere ?туман по временам года или обычный, шквалистый ветер
+        "701": lambda weather: fr"img\Other\Mist.jpg",
+        "711": lambda weather: fr"img\Other\Smoke.jpg",
+        "721": lambda weather: fr"img\Other\Mist.jpg",
+        "731": lambda weather: fr"img\Other\Dust.jpg",
+        "741": lambda weather: fr"img\Other\Mist.jpg",
+        "751": lambda weather: fr"img\Other\Dust.jpg",
+        "761": lambda weather: fr"img\Other\Dust.jpg",
+        "762": lambda weather: fr"img\Other\Ash.jpg",
+        "771": lambda weather: fr"img\Other\Tornado.jpg",  # пока поставлю торнадо
+        "781": lambda weather: fr"img\Other\Tornado.jpg",
+
+        # Group 800: Clear
+        "800": lambda weather: fr"img\{weather}\Clear.jpg",
+
+        # Group 80x: Clouds
+        "801": lambda weather: fr"img\{weather}\Clear25.jpg",
+        "802": lambda weather: fr"img\{weather}\Clear25.jpg",
+        "803": lambda weather: fr"img\{weather}\Clear85.jpg",
+        "804": lambda weather: fr"img\{weather}\Clear85.jpg",
+    }
+
     @staticmethod
     def get_weather_data(city_name):
         response = requests.get(
@@ -35,17 +108,17 @@ class WeatherControl:
         print(weather_data)
         weather_type_main = weather_data['weather'][0]['main']
         current_season = WeatherControl.get_current_season()
-        image_src = fr'img\{current_season}\{current_season.title()}{weather_type_main}.png'
+        image_src = fr'img\{current_season}\{current_season.title()}{weather_type_main}.jpg'
         return image_src
 
     @staticmethod
     def get_current_season():
         Y = 2000
-        seasons = [('winter', (date(Y, 1, 1), date(Y, 3, 20))),
-                   ('spring', (date(Y, 3, 21), date(Y, 6, 20))),
-                   ('summer', (date(Y, 6, 21), date(Y, 9, 22))),
-                   ('autumn', (date(Y, 9, 23), date(Y, 12, 20))),
-                   ('winter', (date(Y, 12, 21), date(Y, 12, 31)))]
+        seasons = [('Winter', (date(Y, 1, 1), date(Y, 3, 20))),
+                   ('Spring', (date(Y, 3, 21), date(Y, 6, 20))),
+                   ('Summer', (date(Y, 6, 21), date(Y, 9, 22))),
+                   ('Autumn', (date(Y, 9, 23), date(Y, 12, 20))),
+                   ('Winter', (date(Y, 12, 21), date(Y, 12, 31)))]
         now = date.today()
         if isinstance(now, datetime):
             now = now.date()
