@@ -74,10 +74,10 @@ class WeatherControl:
         "800": lambda weather: fr"img\{weather}\Clear.jpg",
 
         # Group 80x: Clouds
-        "801": lambda weather: fr"img\{weather}\Clear25.jpg",
-        "802": lambda weather: fr"img\{weather}\Clear25.jpg",
-        "803": lambda weather: fr"img\{weather}\Clear85.jpg",
-        "804": lambda weather: fr"img\{weather}\Clear85.jpg",
+        "801": lambda weather: fr"img\{weather}\Clouds25.jpg",
+        "802": lambda weather: fr"img\{weather}\Clouds25.jpg",
+        "803": lambda weather: fr"img\{weather}\Clouds85.jpg",
+        "804": lambda weather: fr"img\{weather}\Clouds85.jpg",
     }
 
     @staticmethod
@@ -86,6 +86,18 @@ class WeatherControl:
             f'https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
         print(f'https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
         return response.json()
+    @staticmethod
+    def get_weather_forecast(city_name):
+        response = requests.get(f'http://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
+        return response.json()
+    @staticmethod
+    def get_timezone(city_name):
+        weather_data = WeatherControl.get_weather_data(city_name)
+        return int(weather_data['timezone'])
+    @staticmethod
+    def is_valid_city(city_name):
+        response = WeatherControl.get_weather_data(city_name)
+        return response['cod'] == 200
 
     @staticmethod
     def get_current_weather_info(city_name):
@@ -93,10 +105,12 @@ class WeatherControl:
         weather_type_description = weather_data['weather'][0]["description"]
         weather_temp = WeatherControl.format_temp(weather_data["main"]["temp"])
         weather_temp_feelslike = WeatherControl.format_temp(weather_data["main"]["feels_like"])
+        weather_forecast = WeatherControl.get_weather_forecast(city_name)['list'][0]
         return f'Прогноз погоды в городе {city_name.title()} сейчас :' \
                f'\n Температура: {weather_temp}, на улице {weather_type_description} ' \
                f'\n Ощущается как {weather_temp_feelslike}' \
-               f'\n Скорость ветра - {weather_data["wind"]["speed"]} м/с'
+               f'\n Скорость ветра - {weather_data["wind"]["speed"]} м/с' \
+               f'\n В ближайшие 3 часа будет {weather_forecast["weather"][0]["description"]}'
 
     @staticmethod
     def format_temp(temperature):
@@ -106,25 +120,23 @@ class WeatherControl:
     def get_weather_picture(city_name):
         weather_data = WeatherControl.get_weather_data(city_name)
         print(weather_data)
-        weather_type_main = weather_data['weather'][0]['main']
+        weather_type_id = str(weather_data['weather'][0]['id'])
         current_season = WeatherControl.get_current_season()
-        image_src = fr'img\{current_season}\{current_season.title()}{weather_type_main}.jpg'
+        image_src = WeatherControl.weather_codes[weather_type_id](current_season)
         return image_src
 
     @staticmethod
     def get_current_season():
-        Y = 2000
-        seasons = [('Winter', (date(Y, 1, 1), date(Y, 3, 20))),
-                   ('Spring', (date(Y, 3, 21), date(Y, 6, 20))),
-                   ('Summer', (date(Y, 6, 21), date(Y, 9, 22))),
-                   ('Autumn', (date(Y, 9, 23), date(Y, 12, 20))),
-                   ('Winter', (date(Y, 12, 21), date(Y, 12, 31)))]
-        now = date.today()
-        if isinstance(now, datetime):
-            now = now.date()
-        now = now.replace(year=Y)
-        return next(season for season, (start, end) in seasons
-                    if start <= now <= end)
+        current_month = datetime.today().month
+        if current_month == 12 or 1 <= current_month <= 2:
+            return 'Winter'
+        elif 3 <= current_month <= 5:
+            return 'Spring'
+        elif 6 <= current_month <= 8:
+            return 'Summer'
+        elif 9 <= current_month <= 11:
+            return 'Autumn'
+
 
     @staticmethod
     def weather_screen_activate(user_id, bot):
@@ -132,8 +144,7 @@ class WeatherControl:
             WeatherControl.weather_screen_show_weather(botDB.get_location(user_id), user_id, bot)
         else:
             botDB.add_user(user_id)
-            menu_handler.change_menu('enter_city_name')
-            bot.send_message(user_id, 'Введите название города')
+            menu_handler.change_menu('enter_city_name', user_id)
         pass
 
     @staticmethod
@@ -142,5 +153,4 @@ class WeatherControl:
         city_name = city_name
         bot.send_photo(user_id, photo=open(fr'{image_link}', 'rb'),
                        caption=WeatherControl.get_current_weather_info(city_name), reply_markup=menu_handler.markup)
-        bot.send_message(user_id, image_link)
-        menu_handler.change_menu('weather_info')
+        menu_handler.change_menu('weather_info', user_id)
