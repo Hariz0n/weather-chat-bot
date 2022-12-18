@@ -105,12 +105,15 @@ class WeatherControl:
         weather_type_description = weather_data['weather'][0]["description"]
         weather_temp = WeatherControl.format_temp(weather_data["main"]["temp"])
         weather_temp_feelslike = WeatherControl.format_temp(weather_data["main"]["feels_like"])
-        weather_forecast = WeatherControl.get_weather_forecast(city_name)['list'][0]
-        return f'Прогноз погоды в городе {city_name.title()} сейчас :' \
-               f'\n Температура: {weather_temp}, на улице {weather_type_description} ' \
-               f'\n Ощущается как {weather_temp_feelslike}' \
-               f'\n Скорость ветра - {weather_data["wind"]["speed"]} м/с' \
-               f'\n В ближайшие 3 часа будет {weather_forecast["weather"][0]["description"]}'
+        weather_forecast = WeatherControl.get_weather_forecast(city_name)['list'][:2]
+        print(weather_forecast)
+        return f'☁️gitПрогноз погоды в городе {city_name.title()} сейчас:' \
+               f'\n  На улице {weather_type_description}' \
+               f'\n  🌡️Температура: {weather_temp} °C' \
+               f'\n  🌡️Ощущается как {weather_temp_feelslike} °C' \
+               f'\n  💨Скорость ветра - {weather_data["wind"]["speed"]} м/с' \
+               f'\n\nВ ближайшие 3 часа будет {weather_forecast[0]["weather"][0]["description"]}' \
+               f'\nВ ближайшие 6 часа будет {weather_forecast[1]["weather"][0]["description"]}'
 
     @staticmethod
     def format_temp(temperature):

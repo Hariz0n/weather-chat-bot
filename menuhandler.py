@@ -21,7 +21,7 @@ class MenuHandler:
                 'on_change': "Вы находитесь в главном меню. Выберите одно из предложенных действий"
             },
             'rate_us': {
-                'buttons': ['Назад'],
+                'buttons': ['1', '2', '3', '4', '5', 'Назад'],
                 'on_change': "Для оценки перейдите по ссылке: "
             },
             'weather_info': {
@@ -59,7 +59,7 @@ class MenuHandler:
             },
             'set_notification_set_time': {
                 'buttons': ['Назад'],
-                'on_change': 'Введите время оповещения: '
+                'on_change': 'Введите время оповещения (HH:MM): '
             },
             'error': {
                 'buttons': ['На главную']
