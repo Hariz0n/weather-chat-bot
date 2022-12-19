@@ -74,7 +74,7 @@ class ScheduleBot:
     @staticmethod
     def localize_time(user_time, current_time_zone):
         loc_time = dt.datetime.strptime(user_time, "%H:%M")
-        time_zone = dt.timedelta(seconds=18000 - current_time_zone)
+        time_zone = dt.timedelta(seconds=10800 - current_time_zone)
         loc_time = loc_time + time_zone
         loc_time = loc_time.strftime("%H:%M")
         return loc_time
