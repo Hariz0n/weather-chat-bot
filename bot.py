@@ -16,7 +16,8 @@ def flag_start():
     start_flag = False
 def add_notification_date(date):
     global notification_date
-    notification_date.append(date)
+    if date not in notification_date:
+        notification_date.append(date)
 def reset_notification_date():
     global notification_date
     notification_date = []
