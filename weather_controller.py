@@ -11,73 +11,73 @@ class WeatherControl:
     weather_codes = {
 
         # Group 2xx: Thunderstorm
-        "200": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "201": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "202": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "210": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "211": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "212": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "221": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "230": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "231": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
-        "232": lambda weather: fr"img\{weather}\Thunderstorm.jpg",
+        "200": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "201": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "202": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "210": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "211": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "212": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "221": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "230": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "231": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
+        "232": lambda weather: fr"./img/{weather}/Thunderstorm.jpg",
 
         # Group 3xx: Drizzle
-        "300": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "301": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "302": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "310": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "311": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "312": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "313": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "314": lambda weather: fr"img\{weather}\Drizzle.jpg",
-        "321": lambda weather: fr"img\{weather}\Drizzle.jpg",
+        "300": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "301": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "302": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "310": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "311": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "312": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "313": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "314": lambda weather: fr"./img/{weather}/Drizzle.jpg",
+        "321": lambda weather: fr"./img/{weather}/Drizzle.jpg",
 
         # Group 5xx: Rain
-        "500": lambda weather: fr"img\{weather}\Rain.jpg",
-        "501": lambda weather: fr"img\{weather}\Rain.jpg",
-        "502": lambda weather: fr"img\{weather}\Rain.jpg",
-        "503": lambda weather: fr"img\{weather}\Rain.jpg",
-        "504": lambda weather: fr"img\{weather}\Rain.jpg",
-        "511": lambda weather: fr"img\{weather}\Rain.jpg",
-        "520": lambda weather: fr"img\{weather}\Rain.jpg",
-        "521": lambda weather: fr"img\{weather}\Rain.jpg",
-        "522": lambda weather: fr"img\{weather}\Rain.jpg",
-        "531": lambda weather: fr"img\{weather}\Rain.jpg",
+        "500": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "501": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "502": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "503": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "504": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "511": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "520": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "521": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "522": lambda weather: fr"./img/{weather}/Rain.jpg",
+        "531": lambda weather: fr"./img/{weather}/Rain.jpg",
 
         # Group 6xx: Snow
-        "600": lambda weather: fr"img\{weather}\Snow.jpg",
-        "601": lambda weather: fr"img\{weather}\Snow.jpg",
-        "602": lambda weather: fr"img\{weather}\Snow.jpg",
-        "611": lambda weather: fr"img\{weather}\Snow.jpg",
-        "612": lambda weather: fr"img\{weather}\Snow.jpg",
-        "613": lambda weather: fr"img\{weather}\Snow.jpg",
-        "615": lambda weather: fr"img\{weather}\Snow.jpg",
-        "616": lambda weather: fr"img\{weather}\Snow.jpg",
-        "620": lambda weather: fr"img\{weather}\Snow.jpg",
-        "621": lambda weather: fr"img\{weather}\Snow.jpg",
-        "622": lambda weather: fr"img\{weather}\Snow.jpg",
+        "600": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "601": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "602": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "611": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "612": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "613": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "615": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "616": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "620": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "621": lambda weather: fr"./img/{weather}/Snow.jpg",
+        "622": lambda weather: fr"./img/{weather}/Snow.jpg",
 
         # Group 7xx: Atmosphere ?туман по временам года или обычный, шквалистый ветер
-        "701": lambda weather: fr"img\Other\Mist.jpg",
-        "711": lambda weather: fr"img\Other\Smoke.jpg",
-        "721": lambda weather: fr"img\Other\Mist.jpg",
-        "731": lambda weather: fr"img\Other\Dust.jpg",
-        "741": lambda weather: fr"img\Other\Mist.jpg",
-        "751": lambda weather: fr"img\Other\Dust.jpg",
-        "761": lambda weather: fr"img\Other\Dust.jpg",
-        "762": lambda weather: fr"img\Other\Ash.jpg",
-        "771": lambda weather: fr"img\Other\Tornado.jpg",  # пока поставлю торнадо
-        "781": lambda weather: fr"img\Other\Tornado.jpg",
+        "701": lambda weather: fr"./img/Other/Mist.jpg",
+        "711": lambda weather: fr"./img/Other/Smoke.jpg",
+        "721": lambda weather: fr"./img/Other/Mist.jpg",
+        "731": lambda weather: fr"./img/Other/Dust.jpg",
+        "741": lambda weather: fr"./img/Other/Mist.jpg",
+        "751": lambda weather: fr"./img/Other/Dust.jpg",
+        "761": lambda weather: fr"./img/Other/Dust.jpg",
+        "762": lambda weather: fr"./img/Other/Ash.jpg",
+        "771": lambda weather: fr"./img/Other/Tornado.jpg",  # пока поставлю торнадо
+        "781": lambda weather: fr"./img/Other/Tornado.jpg",
 
         # Group 800: Clear
-        "800": lambda weather: fr"img\{weather}\Clear.jpg",
+        "800": lambda weather: fr"./img/{weather}/Clear.jpg",
 
         # Group 80x: Clouds
-        "801": lambda weather: fr"img\{weather}\Clouds25.jpg",
-        "802": lambda weather: fr"img\{weather}\Clouds25.jpg",
-        "803": lambda weather: fr"img\{weather}\Clouds85.jpg",
-        "804": lambda weather: fr"img\{weather}\Clouds85.jpg",
+        "801": lambda weather: fr"./img/{weather}/Clouds25.jpg",
+        "802": lambda weather: fr"./img/{weather}/Clouds25.jpg",
+        "803": lambda weather: fr"./img/{weather}/Clouds85.jpg",
+        "804": lambda weather: fr"./img/{weather}/Clouds85.jpg",
     }
 
     @staticmethod
@@ -107,7 +107,7 @@ class WeatherControl:
         weather_temp_feelslike = WeatherControl.format_temp(weather_data["main"]["feels_like"])
         weather_forecast = WeatherControl.get_weather_forecast(city_name)['list'][:2]
         print(weather_forecast)
-        return f'☁️gitПрогноз погоды в городе {city_name.title()} сейчас:' \
+        return f'Прогноз погоды в городе {city_name.title()} сейчас:' \
                f'\n  На улице {weather_type_description}' \
                f'\n  🌡️Температура: {weather_temp} °C' \
                f'\n  🌡️Ощущается как {weather_temp_feelslike} °C' \
