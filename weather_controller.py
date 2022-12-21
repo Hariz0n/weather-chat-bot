@@ -2,6 +2,7 @@ import requests
 from TOKEN import API_KEY
 from datetime import date, datetime
 from db import BotDB
+import threading
 from menuhandler import *
 
 botDB = BotDB('db.db')
@@ -84,23 +85,26 @@ class WeatherControl:
     def get_weather_data(city_name):
         response = requests.get(
             f'https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
-        print(f'https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
         return response.json()
+
     @staticmethod
     def get_weather_forecast(city_name):
-        response = requests.get(f'http://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
+        response = requests.get(
+            f'http://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={API_KEY}&lang=ru&units=metric')
         return response.json()
+
     @staticmethod
     def get_timezone(city_name):
         weather_data = WeatherControl.get_weather_data(city_name)
         return int(weather_data['timezone'])
+
     @staticmethod
     def is_valid_city(city_name):
         response = WeatherControl.get_weather_data(city_name)
         return response['cod'] == 200
 
     @staticmethod
-    def get_current_weather_info(city_name):
+    async def get_current_weather_info(city_name):
         weather_data = WeatherControl.get_weather_data(city_name)
         weather_type_description = weather_data['weather'][0]["description"]
         weather_temp = WeatherControl.format_temp(weather_data["main"]["temp"])
@@ -140,20 +144,20 @@ class WeatherControl:
         elif 9 <= current_month <= 11:
             return 'Autumn'
 
-
     @staticmethod
-    def weather_screen_activate(user_id, bot):
+    async def weather_screen_activate(user_id, bot):
         if botDB.is_user_exists(user_id):
-            WeatherControl.weather_screen_show_weather(botDB.get_location(user_id), user_id, bot)
+            location = botDB.get_location(user_id)
+            await WeatherControl.weather_screen_show_weather(location, user_id, bot)
         else:
             botDB.add_user(user_id)
             menu_handler.change_menu('enter_city_name', user_id)
         pass
 
     @staticmethod
-    def weather_screen_show_weather(city_name, user_id, bot):
+    async def weather_screen_show_weather(city_name, user_id, bot):
         image_link = WeatherControl.get_weather_picture(city_name)
         city_name = city_name
-        bot.send_photo(user_id, photo=open(fr'{image_link}', 'rb'),
-                       caption=WeatherControl.get_current_weather_info(city_name), reply_markup=menu_handler.markup)
+        await bot.send_photo(user_id, photo=open(fr'{image_link}', 'rb'),
+                       caption=await WeatherControl.get_current_weather_info(city_name), reply_markup=menu_handler.markup)
         menu_handler.change_menu('weather_info', user_id)

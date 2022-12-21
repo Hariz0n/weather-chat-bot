@@ -22,7 +22,7 @@ class MenuHandler:
             },
             'rate_us': {
                 'buttons': ['1', '2', '3', '4', '5', 'Назад'],
-                'on_change': "Для оценки перейдите по ссылке: "
+                'on_change': "Предлагаем вам оценить приложение от 1 до 5: "
             },
             'weather_info': {
                 'buttons': ['На главную', 'Изменить город'],
@@ -77,6 +77,8 @@ class MenuHandler:
             self.set_notifications_screen_markup(user_id)
         elif menu_name == 'notification_edit_date_enter' or menu_name == "set_notification_set_date":
             self.set_edit_date_markup()
+        elif menu_name == 'rate_us':
+            self.set_rate_markup()
         if 'on_change' in self.menu_markup[self.current_menu]:
             bot.send_message(str(user_id), self.menu_markup[self.current_menu]['on_change'], reply_markup=self.markup)
 
@@ -96,6 +98,11 @@ class MenuHandler:
         self.markup.add('Далее')
         for date in ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']:
             self.markup.add(f'{date}')
+        self.markup.add('На главную')
+
+    def set_rate_markup(self):
+        for rating in [str(i) for i in range(1, 6)]:
+            self.markup.add(rating)
         self.markup.add('На главную')
 
 
