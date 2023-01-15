@@ -17,7 +17,10 @@ def flag_start():
     start_flag = False
 
 def is_valid(message):
-    return str.isdigit(message.text.lower()[0:1]) and str.isdigit(message.text.lower()[3:4])
+    print(int(message.text.lower()[0:1]))
+    print(int(message.text.lower()[3:4]))
+    return str.isdigit(message.text.lower()[0:2]) and str.isdigit(message.text.lower()[3:5]) and 0 <= int(message.text.lower()[0:2]) <= 24 and 0 <= int(message.text.lower()[3:5]) <= 59
+
 def add_notification_date(date, user_id):
     user_id = int(user_id)
     global notification_date
@@ -110,6 +113,7 @@ def on_message(message):
             else:
                 bot.send_message(message.from_user.id, 'В названии города допущена ошибка! Попробуйте еще раз', reply_markup=menu_handler.markup)
 
+
         elif menu_handler.current_menu == "notifications":
             reset_notification_date(user_id)
             notifications_dict = botDB.get_schedule(user_id)
@@ -133,7 +137,7 @@ def on_message(message):
                 bot.send_message(message.from_user.id, f'Оповещение создано')
                 menu_handler.change_menu('main', user_id)
             else:
-                bot.send_message(message.from_user.id, 'Неправильный формат времени!')
+                bot.send_message(message.from_user.id, 'Неправильный формат времени! Попробуйте еще раз!')
         elif menu_handler.current_menu == 'notification_details':
             if message.text == 'Изменить время':
                 menu_handler.change_menu('notification_edit_time', user_id)
@@ -150,7 +154,7 @@ def on_message(message):
                 menu_handler.change_menu("notifications", user_id)
 
         elif menu_handler.current_menu == 'notification_edit_time':
-            if message.from_user.id == user_id:
+            if is_valid(message):
                 user_schedule = botDB.get_schedule(user_id)
                 user_schedule[current_notification_date[user_id]] = message.text
                 botDB.update_schedule(user_id, user_schedule)
@@ -158,6 +162,9 @@ def on_message(message):
                 menu_handler.change_menu("notification_details", user_id)
                 bot.send_message(message.from_user.id,
                                 f'Оповещение: {current_notification_date[user_id]} - {user_schedule[current_notification_date[user_id]]}', reply_markup=menu_handler.markup)
+            else:
+                bot.send_message(message.from_user.id, 'Неправильный формат времени! Попробуйте еще раз!')
+
         elif menu_handler.current_menu == 'notification_edit_date_enter':
             user_id = message.from_user.id
             if message.text.lower() == 'далее':
