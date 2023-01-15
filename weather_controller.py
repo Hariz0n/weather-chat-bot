@@ -108,13 +108,21 @@ class WeatherControl:
         weather_temp_feelslike = WeatherControl.format_temp(weather_data["main"]["feels_like"])
         weather_forecast = WeatherControl.get_weather_forecast(city_name)['list'][:2]
         print(weather_forecast)
-        return f'Прогноз погоды в городе {city_name.title()} сейчас:' \
-               f'\n  На улице {weather_type_description}' \
-               f'\n  🌡️Температура: {weather_temp} °C' \
-               f'\n  🌡️Ощущается как {weather_temp_feelslike} °C' \
-               f'\n  💨Скорость ветра - {weather_data["wind"]["speed"]} м/с' \
-               f'\n\nВ ближайшие 3 часа будет {weather_forecast[0]["weather"][0]["description"]}' \
-               f'\nВ ближайшие 6 часа будет {weather_forecast[1]["weather"][0]["description"]}'
+        return f'Прогноз погоды в городе {city_name.title()}\n\n' \
+                f'На данный момент:\n'\
+                f'\t\t\t\tНа улице {weather_type_description}\n' \
+                f'\t\t\t\tТемпература: {weather_temp} °C\n' \
+                f'\t\t\t\tОщущается как {weather_temp_feelslike} °C\n' \
+                f'\t\t\t\tСкорость ветра - {weather_data["wind"]["speed"]} м/с\n\n' \
+                f'В ближайшие 3 часа:\n' \
+                f'\t\t\t\tТемпература: {weather_forecast[0]["main"]["temp"]} °C\n' \
+                f'\t\t\t\tОщущается как {weather_forecast[0]["main"]["feels_like"]} °C\n' \
+                f'\t\t\t\tСкорость ветра - {weather_forecast[0]["wind"]["speed"]} м/с\n\n' \
+                f'В ближайшие 6 часов:\n' \
+                f'\t\t\t\tТемпература: {weather_forecast[1]["main"]["temp"]} °C\n' \
+                f'\t\t\t\tОщущается как {weather_forecast[1]["main"]["feels_like"]} °C\n' \
+                f'\t\t\t\tСкорость ветра - {weather_forecast[1]["wind"]["speed"]} м/с\n' \
+
 
     @staticmethod
     def format_temp(temperature):
