@@ -93,6 +93,7 @@ class WeatherControl:
     @staticmethod
     def get_timezone(city_name):
         weather_data = WeatherControl.get_weather_data(city_name)
+        print(int(weather_data['timezone']))
         return int(weather_data['timezone'])
     @staticmethod
     def is_valid_city(city_name):

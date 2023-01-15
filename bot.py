@@ -7,29 +7,47 @@ from notifications import Notifications
 
 bot = telebot.TeleBot(TOKEN)
 botDB = BotDB('db.db')
-current_notification_date = ""
-notification_date = []
+current_notification_date = {}
+notification_time = {}
+notification_date = {}
 start_flag = True
 
 def flag_start():
     global start_flag
     start_flag = False
-def add_notification_date(date):
-    global notification_date
-    if date not in notification_date:
-        notification_date.append(date)
-def reset_notification_date():
-    global notification_date
-    notification_date = []
 
-def change_notification_date():
+def is_valid(message):
+    return str.isdigit(message.text.lower()[0:1]) and str.isdigit(message.text.lower()[3:4])
+def add_notification_date(date, user_id):
+    user_id = int(user_id)
+    global notification_date
+    if user_id not in notification_date:
+        notification_date[user_id] = [date]
+    elif date not in notification_date[user_id]:
+        notification_date[user_id].append(date)
+def reset_notification_date(user_id):
+    user_id = int(user_id)
+    global notification_date
+    notification_date[user_id] = []
+
+def change_notification_date(user_id):
     global notification_date
     global current_notification_date
-    current_notification_date = ", ".join(notification_date)
-def change_current_notification_date(new_date):
+    user_id = int(user_id)
+    current_notification_date[user_id] = ", ".join(notification_date[user_id])
+def change_current_notification_date(new_date, user_id):
+    user_id = int(user_id)
     global current_notification_date
-    current_notification_date = new_date
+    current_notification_date[user_id] = new_date
 
+def set_notification_time(message):
+    user_id = int(message.from_user.id)
+    global notification_time
+    notification_time[user_id] = message.text.lower()
+def get_notification_time(message):
+    user_id = int(message.from_user.id)
+    global notification_time
+    return notification_time[user_id]
 def set_notification_date(message, next_step):
     user_id = message.from_user.id
     if message.text.lower() == 'далее':
@@ -37,24 +55,25 @@ def set_notification_date(message, next_step):
     elif message.text.lower() == 'назад к оповещениям':
         menu_handler.change_menu('notifications', user_id)
     elif message.text.lower() in ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']:
-        add_notification_date(message.text.upper())
+        add_notification_date(message.text.upper(), user_id)
 
 def format_schedule_output(user_schedule):
     return '\n'.join(f'{x}-{user_schedule[x]}' for x in user_schedule)
 
 def edit_notification_date(user_id, message):
+    user_id = int(user_id)
     user_schedule = botDB.get_schedule(user_id)
-    notification_time = user_schedule[current_notification_date]
-    user_schedule.pop(current_notification_date)
-    change_notification_date()
-    notification_dates = current_notification_date
+    notification_time = user_schedule[current_notification_date[user_id]]
+    user_schedule.pop(current_notification_date[user_id])
+    change_notification_date(user_id)
+    notification_dates = current_notification_date[user_id]
     user_schedule[notification_dates] = notification_time
     botDB.update_schedule(user_id, user_schedule)
     Notifications.set_user_notification(user_id, user_schedule)
-    reset_notification_date()
+    reset_notification_date(user_id)
     menu_handler.change_menu("notification_details", user_id)
     bot.send_message(message.from_user.id,
-                     f'Оповещение: {current_notification_date} - {user_schedule[current_notification_date]}')
+                     f'Оповещение: {current_notification_date[user_id]} - {user_schedule[current_notification_date[user_id]]}')
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -92,26 +111,29 @@ def on_message(message):
                 bot.send_message(message.from_user.id, 'В названии города допущена ошибка! Попробуйте еще раз', reply_markup=menu_handler.markup)
 
         elif menu_handler.current_menu == "notifications":
-            reset_notification_date()
+            reset_notification_date(user_id)
             notifications_dict = botDB.get_schedule(user_id)
             notification_dates = message.text.split(' - ')[0]
-            change_current_notification_date(notification_dates)
+            change_current_notification_date(notification_dates, user_id)
             notification_time = notifications_dict[notification_dates]
             menu_handler.change_menu('notification_details', user_id)
             bot.send_message(message.from_user.id, f'Оповещение: {notification_dates} - {notification_time}', reply_markup=menu_handler.markup)
         elif menu_handler.current_menu == "set_notification_set_date":
             set_notification_date(message, 'set_notification_set_time')
         elif menu_handler.current_menu == 'set_notification_set_time':
-            change_notification_date()
-            notification_days = current_notification_date
-            notification_times = message.text
-            bot.send_message(message.from_user.id, message.text)
-            Notifications.set_user_notification(user_id, {notification_days: notification_times})
-            user_schedule = botDB.get_schedule(user_id)
-            user_schedule[notification_days] = notification_times
-            botDB.update_schedule(user_id, user_schedule)
-            bot.send_message(message.from_user.id, f'Оповещение создано')
-            menu_handler.change_menu('main', user_id)
+            if is_valid(message):
+                change_notification_date(user_id)
+                notification_days = current_notification_date[user_id]
+                set_notification_time(message)
+                bot.send_message(message.from_user.id, get_notification_time(message))
+                Notifications.set_user_notification(user_id, {notification_days: get_notification_time(message)})
+                user_schedule = {user_id : botDB.get_schedule(user_id)}
+                user_schedule[user_id][notification_days] = get_notification_time(message)
+                botDB.update_schedule(user_id, user_schedule[user_id])
+                bot.send_message(message.from_user.id, f'Оповещение создано')
+                menu_handler.change_menu('main', user_id)
+            else:
+                bot.send_message(message.from_user.id, 'Неправильный формат времени!')
         elif menu_handler.current_menu == 'notification_details':
             if message.text == 'Изменить время':
                 menu_handler.change_menu('notification_edit_time', user_id)
@@ -119,7 +141,7 @@ def on_message(message):
                 menu_handler.change_menu('notification_edit_date_enter', user_id)
             if message.text == 'Удалить оповещение':
                 user_schedule = botDB.get_schedule(user_id)
-                user_schedule.pop(current_notification_date)
+                user_schedule.pop(current_notification_date[user_id])
                 botDB.update_schedule(user_id, user_schedule)
                 Notifications.set_user_notification(user_id, user_schedule)
                 bot.send_message(message.from_user.id, 'Оповещение удалено!', reply_markup=menu_handler.markup)
@@ -128,13 +150,14 @@ def on_message(message):
                 menu_handler.change_menu("notifications", user_id)
 
         elif menu_handler.current_menu == 'notification_edit_time':
-            user_schedule = botDB.get_schedule(user_id)
-            user_schedule[current_notification_date] = message.text
-            botDB.update_schedule(user_id, user_schedule)
-            Notifications.set_user_notification(user_id, user_schedule)
-            menu_handler.change_menu("notification_details", user_id)
-            bot.send_message(message.from_user.id,
-                             f'Оповещение: {current_notification_date} - {user_schedule[current_notification_date]}', reply_markup=menu_handler.markup)
+            if message.from_user.id == user_id:
+                user_schedule = botDB.get_schedule(user_id)
+                user_schedule[current_notification_date[user_id]] = message.text
+                botDB.update_schedule(user_id, user_schedule)
+                Notifications.set_user_notification(user_id, user_schedule)
+                menu_handler.change_menu("notification_details", user_id)
+                bot.send_message(message.from_user.id,
+                                f'Оповещение: {current_notification_date[user_id]} - {user_schedule[current_notification_date[user_id]]}', reply_markup=menu_handler.markup)
         elif menu_handler.current_menu == 'notification_edit_date_enter':
             user_id = message.from_user.id
             if message.text.lower() == 'далее':
@@ -144,7 +167,17 @@ def on_message(message):
             elif message.text.lower() == 'назад к оповещениям':
                 menu_handler.change_menu('notifications', user_id)
             elif message.text.lower() in ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']:
-                add_notification_date(message.text.upper())
+                add_notification_date(message.text.upper(), user_id)
+        elif menu_handler.current_menu == 'rate_us':
+            if str.isdigit(message.text.lower()):
+                if 1 <= int(message.text.lower()) <= 5:
+                    botDB.update_rating(user_id, int(message.text.lower()))
+                    bot.send_message(message.from_user.id, 'Спасибо за оценку!')
+                    menu_handler.change_menu('main', user_id)
+                else:
+                    bot.send_message(message.from_user.id, 'Неправильный формат оценки! Попробуйте еще раз')
+            else:
+                bot.send_message(message.from_user.id, 'Неправильный формат оценки! Попробуйте еще раз')
 
         elif menu_handler.current_menu == 'error':
             bot.send_message(message.from_user.id, f'Произошла ошибка. Попробуйте еще раз')
